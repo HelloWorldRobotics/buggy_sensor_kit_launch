@@ -86,37 +86,37 @@ def launch_setup(context, *args, **kwargs):
 
     nodes = []
 
-    nodes.append(
-        ComposableNode(
-            package="nebula_ros",
-            plugin=sensor_make + "DriverRosWrapper",
-            name=sensor_make.lower() + "_driver_ros_wrapper_node",
-            parameters=[
-                {
-                    "calibration_file": sensor_calib_fp,
-                    "sensor_model": sensor_model,
-                    **create_parameter_dict(
-                        "host_ip",
-                        "sensor_ip",
-                        "data_port",
-                        "return_mode",
-                        "min_range",
-                        "max_range",
-                        "frame_id",
-                        "scan_phase",
-                        "cloud_min_angle",
-                        "cloud_max_angle",
-                        "dual_return_distance_threshold",
-                    ),
-                },
-            ],
-            remappings=[
-                ("aw_points", "pointcloud_raw"),
-                ("aw_points_ex", "pointcloud_raw_ex"),
-            ],
-            extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
-        )
-    )
+    # nodes.append(
+    #     ComposableNode(
+    #         package="nebula_ros",
+    #         plugin=sensor_make + "DriverRosWrapper",
+    #         name=sensor_make.lower() + "_driver_ros_wrapper_node",
+    #         parameters=[
+    #             {
+    #                 "calibration_file": sensor_calib_fp,
+    #                 "sensor_model": sensor_model,
+    #                 **create_parameter_dict(
+    #                     "host_ip",
+    #                     "sensor_ip",
+    #                     "data_port",
+    #                     "return_mode",
+    #                     "min_range",
+    #                     "max_range",
+    #                     "frame_id",
+    #                     "scan_phase",
+    #                     "cloud_min_angle",
+    #                     "cloud_max_angle",
+    #                     "dual_return_distance_threshold",
+    #                 ),
+    #             },
+    #         ],
+    #         remappings=[
+    #             ("aw_points", "pointcloud_raw"),
+    #             ("aw_points_ex", "pointcloud_raw_ex"),
+    #         ],
+    #         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
+    #     )
+    # )
 
     cropbox_parameters = create_parameter_dict("input_frame", "output_frame")
     cropbox_parameters["negative"] = True
@@ -135,7 +135,7 @@ def launch_setup(context, *args, **kwargs):
             plugin="pointcloud_preprocessor::CropBoxFilterComponent",
             name="crop_box_filter_self",
             remappings=[
-                ("input", "pointcloud_raw_ex"),
+                ("input", "points_raw"),
                 ("output", "self_cropped/pointcloud_ex"),
             ],
             parameters=[cropbox_parameters],
@@ -174,24 +174,24 @@ def launch_setup(context, *args, **kwargs):
                 ("~/input/twist", "/sensing/vehicle_velocity_converter/twist_with_covariance"),
                 ("~/input/imu", "/sensing/imu/imu_data"),
                 ("~/input/pointcloud", "mirror_cropped/pointcloud_ex"),
-                ("~/output/pointcloud", "rectified/pointcloud_ex"),
+                ("~/output/pointcloud", "pointcloud"),
             ],
             extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
         )
     )
 
-    nodes.append(
-        ComposableNode(
-            package="pointcloud_preprocessor",
-            plugin="pointcloud_preprocessor::RingOutlierFilterComponent",
-            name="ring_outlier_filter",
-            remappings=[
-                ("input", "rectified/pointcloud_ex"),
-                ("output", "pointcloud"),
-            ],
-            extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
-        )
-    )
+    # nodes.append(
+    #     ComposableNode(
+    #         package="pointcloud_preprocessor",
+    #         plugin="pointcloud_preprocessor::RingOutlierFilterComponent",
+    #         name="ring_outlier_filter",
+    #         remappings=[
+    #             ("input", "rectified/pointcloud_ex"),
+    #             ("output", "pointcloud"),
+    #         ],
+    #         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
+    #     )
+    # )
 
     # set container to run all required components in the same process
     container = ComposableNodeContainer(
