@@ -39,9 +39,12 @@ def get_lidar_make(sensor_name):
 def get_vehicle_info(context):
     # TODO(TIER IV): Use Parameter Substitution after we drop Galactic support
     # https://github.com/ros2/launch_ros/blob/master/launch_ros/launch_ros/substitutions/parameter.py
-    gp = context.launch_configurations.get("ros_params", {})
-    if not gp:
-        gp = dict(context.launch_configurations.get("global_params", {}))
+    # gp = context.launch_configurations.get("ros_params", {})
+    # if not gp:
+    #     gp = dict(context.launch_configurations.get("global_params", {}))
+    path = LaunchConfiguration("vehicle_param_file").perform(context)
+    with open(path, "r") as f:
+        gp = yaml.safe_load(f)["/**"]["ros__parameters"]
     p = {}
     p["vehicle_length"] = gp["front_overhang"] + gp["wheel_base"] + gp["rear_overhang"]
     p["vehicle_width"] = gp["wheel_tread"] + gp["left_overhang"] + gp["right_overhang"]
@@ -86,37 +89,37 @@ def launch_setup(context, *args, **kwargs):
 
     nodes = []
 
-    # nodes.append(
-    #     ComposableNode(
-    #         package="nebula_ros",
-    #         plugin=sensor_make + "DriverRosWrapper",
-    #         name=sensor_make.lower() + "_driver_ros_wrapper_node",
-    #         parameters=[
-    #             {
-    #                 "calibration_file": sensor_calib_fp,
-    #                 "sensor_model": sensor_model,
-    #                 **create_parameter_dict(
-    #                     "host_ip",
-    #                     "sensor_ip",
-    #                     "data_port",
-    #                     "return_mode",
-    #                     "min_range",
-    #                     "max_range",
-    #                     "frame_id",
-    #                     "scan_phase",
-    #                     "cloud_min_angle",
-    #                     "cloud_max_angle",
-    #                     "dual_return_distance_threshold",
-    #                 ),
-    #             },
-    #         ],
-    #         remappings=[
-    #             ("aw_points", "pointcloud_raw"),
-    #             ("aw_points_ex", "pointcloud_raw_ex"),
-    #         ],
-    #         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
-    #     )
-    # )
+    nodes.append(
+        ComposableNode(
+            package="nebula_ros",
+            plugin=sensor_make + "DriverRosWrapper",
+            name=sensor_make.lower() + "_driver_ros_wrapper_node",
+            parameters=[
+                {
+                    "calibration_file": sensor_calib_fp,
+                    "sensor_model": sensor_model,
+                    **create_parameter_dict(
+                        "host_ip",
+                        "sensor_ip",
+                        "data_port",
+                        "return_mode",
+                        "min_range",
+                        "max_range",
+                        "frame_id",
+                        "scan_phase",
+                        "cloud_min_angle",
+                        "cloud_max_angle",
+                        "dual_return_distance_threshold",
+                    ),
+                },
+            ],
+            remappings=[
+                ("aw_points", "pointcloud_raw"),
+                ("aw_points_ex", "pointcloud_raw_ex"),
+            ],
+            extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
+        )
+    )
 
     cropbox_parameters = create_parameter_dict("input_frame", "output_frame")
     cropbox_parameters["negative"] = True
@@ -135,7 +138,7 @@ def launch_setup(context, *args, **kwargs):
             plugin="pointcloud_preprocessor::CropBoxFilterComponent",
             name="crop_box_filter_self",
             remappings=[
-                ("input", "points_raw"),
+                ("input", "pointcloud_raw_ex"),
                 ("output", "self_cropped/pointcloud_ex"),
             ],
             parameters=[cropbox_parameters],
@@ -174,24 +177,24 @@ def launch_setup(context, *args, **kwargs):
                 ("~/input/twist", "/sensing/vehicle_velocity_converter/twist_with_covariance"),
                 ("~/input/imu", "/sensing/imu/imu_data"),
                 ("~/input/pointcloud", "mirror_cropped/pointcloud_ex"),
-                ("~/output/pointcloud", "pointcloud"),
+                ("~/output/pointcloud", "rectified/pointcloud_ex"),
             ],
             extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
         )
     )
 
-    # nodes.append(
-    #     ComposableNode(
-    #         package="pointcloud_preprocessor",
-    #         plugin="pointcloud_preprocessor::RingOutlierFilterComponent",
-    #         name="ring_outlier_filter",
-    #         remappings=[
-    #             ("input", "rectified/pointcloud_ex"),
-    #             ("output", "pointcloud"),
-    #         ],
-    #         extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
-    #     )
-    # )
+    nodes.append(
+        ComposableNode(
+            package="pointcloud_preprocessor",
+            plugin="pointcloud_preprocessor::RingOutlierFilterComponent",
+            name="ring_outlier_filter",
+            remappings=[
+                ("input", "rectified/pointcloud_ex"),
+                ("output", "pointcloud"),
+            ],
+            extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
+        )
+    )
 
     # set container to run all required components in the same process
     container = ComposableNodeContainer(
