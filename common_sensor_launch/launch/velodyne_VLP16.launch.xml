@@ -13,6 +13,7 @@
   <arg name="cloud_min_angle" default="0"/>
   <arg name="cloud_max_angle" default="360"/>
   <arg name="vehicle_mirror_param_file"/>
+  <arg name="vehicle_param_file" default="$(find-pkg-share buggy_vehicle_description)/config/vehicle_info.param.yaml"/>
   <arg name="container_name" default="velodyne_node_container"/>
 
   <include file="$(find-pkg-share common_sensor_launch)/launch/nebula_node_container.launch.py">
@@ -28,6 +29,7 @@
     <arg name="scan_phase" value="$(var scan_phase)"/>
     <arg name="cloud_min_angle" value="$(var cloud_min_angle)"/>
     <arg name="cloud_max_angle" value="$(var cloud_max_angle)"/>
+    <arg name="vehicle_param_file" value="$(var vehicle_param_file)"/>
     <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
     <arg name="use_intra_process" value="true"/>
     <arg name="use_multithread" value="false"/>
