@@ -29,16 +29,6 @@ from launch_ros.parameter_descriptions import ParameterFile
 import yaml
 
 
-def get_lidar_make(sensor_name):
-    if sensor_name[:6].lower() == "pandar":
-        return "Hesai", ".csv"
-    elif sensor_name[:3].lower() in ["hdl", "vlp", "vls"]:
-        return "Velodyne", ".yaml"
-    elif sensor_name.lower() in ["helios", "bpearl"]:
-        return "Robosense", None
-    return "unrecognized_sensor_model"
-
-
 def get_vehicle_info(context):
     # Get the parameter file path
     param_file = LaunchConfiguration("vehicle_param_file").perform(context)
@@ -78,24 +68,19 @@ def launch_setup(context, *args, **kwargs):
             result[x] = LaunchConfiguration(x)
         return result
 
-    # Model and make
+    # Model
     sensor_model = LaunchConfiguration("sensor_model").perform(context)
-    sensor_make, sensor_extension = get_lidar_make(sensor_model)
-    nebula_decoders_share_dir = get_package_share_directory("nebula_decoders")
-
+    
     # Calibration file
-    if sensor_extension is not None:  # Velodyne and Hesai
-        sensor_calib_fp = os.path.join(
-            nebula_decoders_share_dir,
-            "calibration",
-            sensor_make.lower(),
-            sensor_model + sensor_extension,
-        )
-        assert os.path.exists(
-            sensor_calib_fp
-        ), "Sensor calib file under calibration/ was not found: {}".format(sensor_calib_fp)
-    else:  # Robosense
-        sensor_calib_fp = ""
+    common_sensor_launch_share_dir = get_package_share_directory("common_sensor_launch")
+    sensor_calib_fp = os.path.join(
+        common_sensor_launch_share_dir,
+        "config",
+        "TM16.yaml",
+    )
+    assert os.path.exists(
+        sensor_calib_fp
+    ), f"Sensor calib file under config/ was not found: {sensor_calib_fp}"
 
     # Pointcloud preprocessor parameters
     distortion_corrector_node_param = ParameterFile(
@@ -120,8 +105,8 @@ def launch_setup(context, *args, **kwargs):
     nodes.append(
         ComposableNode(
             package="nebula_ros",
-            plugin=sensor_make + "DriverRosWrapper",
-            name=sensor_make.lower() + "_driver_ros_wrapper_node",
+            plugin="VelodyneDriverRosWrapper",
+            name="velodyne_driver_ros_wrapper_node",
             parameters=[
                 {
                     "calibration_file": sensor_calib_fp,
@@ -142,11 +127,7 @@ def launch_setup(context, *args, **kwargs):
                 },
             ],
             remappings=[
-                # cSpell:ignore knzo25
-                # TODO(knzo25): fix the remapping once nebula gets updated
                 ("velodyne_points", "pointcloud_raw_ex"),
-                # ("robosense_points", "pointcloud_raw_ex"), #for robosense
-                # ("pandar_points", "pointcloud_raw_ex"), # for hesai
             ],
             extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
         )
@@ -246,9 +227,8 @@ def launch_setup(context, *args, **kwargs):
 
     driver_component = ComposableNode(
         package="nebula_ros",
-        plugin=sensor_make + "HwInterfaceRosWrapper",
-        # node is created in a global context, need to avoid name clash
-        name=sensor_make.lower() + "_hw_interface_ros_wrapper_node",
+        plugin="VelodyneHwInterfaceRosWrapper",
+        name="velodyne_hw_interface_ros_wrapper_node",
         parameters=[
             {
                 "sensor_model": sensor_model,
@@ -336,6 +316,15 @@ def generate_launch_description():
             "ring_outlier_filter_node.param.yaml",
         ),
         description="path to parameter file of ring outlier filter node",
+    )
+    add_launch_arg(
+        "vehicle_param_file",
+        os.path.join(
+            get_package_share_directory("buggy_vehicle_description"),
+            "config",
+            "vehicle_info.param.yaml"
+        ),
+        description="path to the file of vehicle info yaml"
     )
 
     set_container_executable = SetLaunchConfiguration(
