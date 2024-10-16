@@ -52,7 +52,7 @@ sensor_kit_base_link:
     x: 3.25
     y: -0.55
     z: 0.825
-    roll: 0.0
+    roll: 0.053
     pitch: 0.0
     yaw: 0.0
   gnss_link:
