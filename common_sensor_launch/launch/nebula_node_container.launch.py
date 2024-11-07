@@ -44,12 +44,12 @@ def get_vehicle_info(context):
     p = {
         "vehicle_length": vehicle_info.get('front_overhang', 0) + vehicle_info.get('wheel_base', 0) + vehicle_info.get('rear_overhang', 0),
         "vehicle_width": vehicle_info.get('wheel_tread', 0) + vehicle_info.get('left_overhang', 0) + vehicle_info.get('right_overhang', 0),
-        "min_longitudinal_offset": -vehicle_info.get('rear_overhang', 0),
+        "min_longitudinal_offset": -vehicle_info.get('rear_overhang', 0)-0.5,
         "max_longitudinal_offset": vehicle_info.get('front_overhang', 0) + vehicle_info.get('wheel_base', 0),
-        "min_lateral_offset": -(vehicle_info.get('wheel_tread', 0) / 2.0 + vehicle_info.get('right_overhang', 0)),
-        "max_lateral_offset": vehicle_info.get('wheel_tread', 0) / 2.0 + vehicle_info.get('left_overhang', 0),
+        "min_lateral_offset": -(vehicle_info.get('wheel_tread', 0) / 2.0 + vehicle_info.get('right_overhang', 0))-0.25,
+        "max_lateral_offset": vehicle_info.get('wheel_tread', 0) / 2.0 + vehicle_info.get('left_overhang', 0)+0.25,
         "min_height_offset": 0.0,
-        "max_height_offset": vehicle_info.get('vehicle_height', 0),
+        "max_height_offset": vehicle_info.get('vehicle_height', 0)+0.1,
     }
     return p
 
