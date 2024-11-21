@@ -5,8 +5,11 @@
   <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
   <arg name="vehicle_mirror_param_file"/>
   <arg name="pointcloud_container_name" default="pointcloud_container"/>
+  <arg name="launch_top_lidar" default="true"/>
+  <arg name="launch_left_lidar" default="true"/>
+  <arg name="launch_right_lidar" default="true"/>
 
-  <group>
+  <group if="$(var launch_top_lidar)">
     <push-ros-namespace namespace="lidar"/>
 
     <group>
@@ -27,7 +30,7 @@
       </include>
     </group>
 
-    <group>
+    <group if="$(var launch_left_lidar)">
       <push-ros-namespace namespace="left"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
@@ -44,7 +47,7 @@
       </include>
     </group>
 
-    <group>
+    <group if="$(var launch_right_lidar)">
       <push-ros-namespace namespace="right"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
