@@ -11,7 +11,7 @@
   <group>
     <push-ros-namespace namespace="lidar"/>
 
-    <group>launch_driver
+    <group>
       <push-ros-namespace namespace="right"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/robosense_RS32.launch.xml">
         <arg name="max_range" value="250.0"/>
@@ -29,7 +29,7 @@
       </include>
     </group>
 
-    <!-- <group>
+    <group>
       <push-ros-namespace namespace="left"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/robosense_RS32.launch.xml">
         <arg name="max_range" value="250.0"/>
@@ -44,7 +44,7 @@
         <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
-    </group>  -->
+    </group> 
 
     <!--<group>
       <push-ros-namespace namespace="right"/>
