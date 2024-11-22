@@ -1,22 +1,24 @@
 <launch>
   <arg name="launch_driver" default="true"/>
-  <arg name="host_ip" default="192.168.1.10"/>
+  <arg name="host_ip" default="192.168.1.255"/>
   <arg name="use_concat_filter" default="true"/>
   <arg name="vehicle_id" default="$(env VEHICLE_ID default)"/>
   <arg name="vehicle_mirror_param_file"/>
   <arg name="pointcloud_container_name" default="pointcloud_container"/>
+  <arg name="sensor_model" default="Bpearl_V3" description="Robosense sensor model: Helios|Bpearl"/>
+  
 
   <group>
     <push-ros-namespace namespace="lidar"/>
 
     <group>
-      <push-ros-namespace namespace="top"/>
-      <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
+      <push-ros-namespace namespace="right"/>
+      <include file="$(find-pkg-share common_sensor_launch)/launch/robosense_RS32.launch.xml">
         <arg name="max_range" value="250.0"/>
-        <arg name="sensor_frame" value="velodyne_top"/>
-        <arg name="sensor_ip" value="192.168.1.201"/>
-        <arg name="host_ip" value="192.168.1.106"/>
-        <arg name="data_port" value="2367"/>
+        <arg name="sensor_frame" value="velodyne_right"/>
+        <arg name="sensor_ip" value="192.168.1.200"/>
+        <arg name="host_ip" value="192.168.1.255"/>
+        <arg name="data_port" value="6699"/>
         <arg name="scan_phase" value="300.0"/>
         <arg name="cloud_min_angle" value="0"/>
         <arg name="cloud_max_angle" value="360"/>
@@ -44,7 +46,7 @@
       </include>
     </group>
 
-    <group>
+    <!--<group>
       <push-ros-namespace namespace="right"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
@@ -59,7 +61,7 @@
         <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
       </include>
-    </group>
+    </group> -->
 
     <include file="$(find-pkg-share buggy_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
       <arg name="base_frame" value="base_link"/>
