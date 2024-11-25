@@ -1,0 +1,33 @@
+/**:
+    ros__parameters:
+      video_device: "/dev/buggy_cam_back"
+      framerate: 60.0
+      io_method: "mmap"
+      frame_id: "camera2/camera_optical_link"
+      pixel_format: "mjpeg2rgb"  # see usb_cam/supported_formats for list of supported formats
+      av_device_format: "YUV422P"
+      image_width: 1280
+      image_height: 720
+      camera_name: "camera_back"
+      camera_info_url: "file:///home/emerge/buggy_ws_split/src/launch/buggy_sensor_kit_launch/buggy_sensor_kit_launch/config/camera_configuration/back_info.yaml"
+      # brightness: -1
+      # contrast: -1
+      # saturation: -1
+      # sharpness: -1
+      # gain: -1
+      # auto_white_balance: true
+      # white_balance: 4000
+      # autoexposure: true
+      # exposure: 100
+      # autofocus: false
+      # focus: -1
+      brightness: 50
+      contrast: 32
+      saturation: 60
+      hue: 0
+      gamma: 100
+      gain: 0
+      sharpness: 2
+      auto_white_balance: true
+      auto_exposure: 3
+      power_line_frequency: 1

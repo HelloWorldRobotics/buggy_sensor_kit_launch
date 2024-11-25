@@ -1,0 +1,37 @@
+<launch>
+  <!-- Back Camera -->
+  <node pkg="usb_cam" 
+        exec="usb_cam_node_exe" 
+        name="usb_cam_back"
+        namespace="camera_back">
+    <param name="params_file" value="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/back.yaml"/>
+    <!-- <param name="camera_info_url" value="file://$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/back_info.yaml"/> -->
+  </node>
+
+  <!-- Front Camera -->
+  <node pkg="usb_cam" 
+        exec="usb_cam_node_exe" 
+        name="usb_cam_front"
+        namespace="camera_front">
+    <param name="params_file" value="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/front.yaml"/>
+    <!-- <param name="camera_info_url" value="file://$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/front_info.yaml"/> -->
+  </node>
+
+  <!-- Left Camera -->
+  <node pkg="usb_cam" 
+        exec="usb_cam_node_exe" 
+        name="usb_cam_left"
+        namespace="camera_left">
+    <param name="params_file" value="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/left.yaml"/>
+    <!-- <param name="camera_info_url" value="file://$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/left_info.yaml"/> -->
+  </node>
+
+  <!-- Right Camera -->
+  <node pkg="usb_cam" 
+        exec="usb_cam_node_exe" 
+        name="usb_cam_right"
+        namespace="camera_right">
+    <param name="params_file" value="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/right.yaml"/>
+    <!-- <param name="camera_info_url" value="file://$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/right_info.yaml"/> -->
+  </node>
+</launch>
