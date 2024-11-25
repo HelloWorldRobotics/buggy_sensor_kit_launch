@@ -3,7 +3,7 @@
       video_device: "/dev/buggy_cam_back"
       framerate: 60.0
       io_method: "mmap"
-      frame_id: "camera2/camera_optical_link"
+      frame_id: "camera0/camera_optical_link"
       pixel_format: "mjpeg2rgb"  # see usb_cam/supported_formats for list of supported formats
       av_device_format: "YUV422P"
       image_width: 1280
