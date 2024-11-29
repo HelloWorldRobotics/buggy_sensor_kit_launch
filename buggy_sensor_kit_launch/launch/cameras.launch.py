@@ -12,7 +12,7 @@ def generate_launch_description():
         'back': {
             'namespace': '/sensing/camera/camera0',
             'device_id': '0',
-            'flip': True,
+            'flip': False,
             'flip_angle': 180
         },
         # 'front': {
@@ -40,7 +40,7 @@ def generate_launch_description():
         camera_num = config['device_id']
         
         # Base topics for the camera
-        base_image_topic = 'image_rect_color'
+        base_image_topic = 'image_raw'
         base_camera_info_topic = 'camera_info'
         
         # Create the camera node
@@ -60,7 +60,7 @@ def generate_launch_description():
             }],
             remappings=[
                 ('image_raw', 'preflipped/image_raw' if config.get('flip', False) else base_image_topic),
-                ('image_raw/compressed', 'preflipped/compressed' if config.get('flip', False) else f'{base_image_topic}/compressed'),
+                ('image_raw/compressed', 'preflipped/compressed' if config.get('flip', False) else f'image_rect_color/compressed'),
                 ('camera_info', base_camera_info_topic),
             ]
         )
@@ -76,8 +76,6 @@ def generate_launch_description():
                 parameters=[{
                     'input_image_topic': f'{namespace}/preflipped/image_raw',
                     'output_image_topic': f'{namespace}/{base_image_topic}',
-                    # 'input_camera_info_topic': f'{namespace}/preflipped/camera_info',
-                    # 'output_camera_info_topic': f'{namespace}/{base_camera_info_topic}',
                     'rotation_angle': config.get('flip_angle', 180),
                     'use_compressed': True
                 }]
