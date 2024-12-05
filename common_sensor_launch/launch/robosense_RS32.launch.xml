@@ -16,7 +16,7 @@
   <arg name="container_name" default="velodyne_node_container"/>
 
   <group if="$(var launch_driver)">
-    <include file="$(find-pkg-share rslidar_sdk)/launch/start.py"/>
+    <include file="$(find-pkg-share rslidar_sdk)/launch/start.launch.py"/>
   </group>
 
   <include file="$(find-pkg-share common_sensor_launch)/launch/nebula_node_container_robosense.launch.py">
