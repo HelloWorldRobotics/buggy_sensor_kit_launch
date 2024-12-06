@@ -9,12 +9,12 @@ def generate_launch_description():
     
     # Common configuration for all cameras
     cameras = {
-        'back': {
-            'namespace': '/sensing/camera/camera0',
-            'device_id': '0',
-            'flip': False,
-            'flip_angle': 180
-        },
+        # 'back': {
+        #     'namespace': '/sensing/camera/camera0',
+        #     'device_id': '0',
+        #     'flip': False,
+        #     'flip_angle': 180
+        # },
         # 'front': {
         #     'namespace': '/sensing/camera/camera1',
         #     'device_id': '1',
@@ -25,11 +25,11 @@ def generate_launch_description():
         #     'device_id': '2',
         #     'flip': False
         # },
-        # 'right': {
-        #     'namespace': '/sensing/camera/camera3',
-        #     'device_id': '3',
-        #     'flip': False
-        # }
+        'right': {
+            'namespace': '/sensing/camera/camera3',
+            'device_id': '3',
+            'flip': False
+        }
     }
     
     nodes = []
