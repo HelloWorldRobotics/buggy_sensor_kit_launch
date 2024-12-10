@@ -6,13 +6,13 @@
   <arg name="vehicle_mirror_param_file"/>
   <arg name="pointcloud_container_name" default="pointcloud_container"/>
   <arg name="launch_top_lidar" default="false"/>
-  <arg name="launch_left_lidar" default="true"/>
-  <arg name="launch_right_lidar" default="true"/>
-  <arg name="launch_rslidar_top" default="true"/>
+  <arg name="launch_left_lidar" default="false"/>
+  <arg name="launch_right_lidar" default="false"/>
+  <arg name="launch_rslidar_top" default="false"/>
 
   <group>
     <push-ros-namespace namespace="lidar"/>
-    <group if="$(var launch_top_lidar)">
+    <group if="$(var launch_top_lidar)">  
       <push-ros-namespace namespace="top"/>
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
@@ -35,7 +35,7 @@
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_left"/>
-        <arg name="sensor_ip" value="192.168.1.201"/>
+        <arg name="sensor_ip" value="192.168.1.202"/>
         <arg name="host_ip" value="192.168.1.107"/>
         <arg name="data_port" value="2369"/>
         <arg name="scan_phase" value="300.0"/>
@@ -52,9 +52,9 @@
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_right"/>
-        <arg name="sensor_ip" value="192.168.1.201"/>
-        <arg name="host_ip" value="192.168.1.105"/>
-        <arg name="data_port" value="2368"/>
+        <arg name="sensor_ip" value="192.168.1.208"/>
+        <arg name="host_ip" value="192.168.1.106"/>
+        <arg name="data_port" value="2367"/>
         <arg name="scan_phase" value="300.0"/>
         <arg name="cloud_min_angle" value="270"/>
         <arg name="cloud_max_angle" value="170"/>
