@@ -93,7 +93,9 @@
     </group>
 
     <group if="$(eval '\'$(var launch_rslidar_top)\' == \'true\' or \'$(var launch_rslidar_left)\' == \'true\' or \'$(var launch_rslidar_right)\' == \'true\'')">
-      <include file="$(find-pkg-share rslidar_sdk)/launch/start.py"/>
+      <include file="$(find-pkg-share rslidar_sdk)/launch/start.launch.py">
+        <arg name="buggy_no" value="2"/>
+      </include>
     </group>
 
     <include file="$(find-pkg-share buggy_sensor_kit_launch)/launch/pointcloud_preprocessor.launch.py">
