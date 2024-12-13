@@ -6,9 +6,9 @@
   <arg name="vehicle_mirror_param_file"/>
   <arg name="pointcloud_container_name" default="pointcloud_container"/>
   <arg name="launch_top_lidar" default="false"/>
-  <arg name="launch_left_lidar" default="false"/>
-  <arg name="launch_right_lidar" default="false"/>
-  <arg name="launch_rslidar_top" default="false"/>
+  <arg name="launch_left_lidar" default="true"/>
+  <arg name="launch_right_lidar" default="true"/>
+  <arg name="launch_rslidar_top" default="true"/>
 
   <group>
     <push-ros-namespace namespace="lidar"/>
@@ -35,8 +35,8 @@
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_left"/>
-        <arg name="sensor_ip" value="192.168.1.202"/>
-        <arg name="host_ip" value="192.168.1.107"/>
+        <arg name="sensor_ip" value="192.168.3.202"/>
+        <arg name="host_ip" value="192.168.3.107"/>
         <arg name="data_port" value="2369"/>
         <arg name="scan_phase" value="300.0"/>
         <arg name="cloud_min_angle" value="190"/>
@@ -52,8 +52,8 @@
       <include file="$(find-pkg-share common_sensor_launch)/launch/velodyne_VLP16.launch.xml">
         <arg name="max_range" value="250.0"/>
         <arg name="sensor_frame" value="velodyne_right"/>
-        <arg name="sensor_ip" value="192.168.1.208"/>
-        <arg name="host_ip" value="192.168.1.106"/>
+        <arg name="sensor_ip" value="192.168.2.208"/>
+        <arg name="host_ip" value="192.168.2.106"/>
         <arg name="data_port" value="2367"/>
         <arg name="scan_phase" value="300.0"/>
         <arg name="cloud_min_angle" value="270"/>
@@ -61,6 +61,9 @@
         <arg name="launch_driver" value="$(var launch_driver)"/>
         <arg name="vehicle_mirror_param_file" value="$(var vehicle_mirror_param_file)"/>
         <arg name="container_name" value="$(var pointcloud_container_name)"/>
+        <arg name="min_range" value="1.0"/>
+
+
       </include>
     </group>
 
