@@ -65,6 +65,11 @@ def launch_setup(context, *args, **kwargs):
 
     nodes = []
 
+    ring_outlier_filter_node_param = ParameterFile(
+        param_file=LaunchConfiguration("ring_outlier_filter_node_param_path").perform(context),
+        allow_substs=True,
+    )
+
     cropbox_parameters = create_parameter_dict("input_frame", "output_frame")
     cropbox_parameters["negative"] = True
 
@@ -134,34 +139,22 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
-    # Voxel Grid Filter parameters
+    # Ring Outlier Filter is the last component in the pipeline, so control the output frame here
     if LaunchConfiguration("output_as_sensor_frame").perform(context).lower() == "true":
-        voxel_grid_filter_params = {
-            "output_frame": LaunchConfiguration("frame_id"),
-            "voxel_size_x": 0.3,
-            "voxel_size_y": 0.3,
-            "voxel_size_z": 0.3,
-            "voxel_points_threshold": 3
-        }
+        ring_outlier_output_frame = {"output_frame": LaunchConfiguration("frame_id")}
     else:
-        voxel_grid_filter_params = {
-            "output_frame": "",
-            "voxel_size_x": 0.3,
-            "voxel_size_y": 0.3,
-            "voxel_size_z": 0.3,
-            "voxel_points_threshold": 3
-        }
-
+        ring_outlier_output_frame = {"output_frame": ""}  # keep the output frame as the input frame
+    
     nodes.append(
         ComposableNode(
             package="autoware_pointcloud_preprocessor",
-            plugin="autoware::pointcloud_preprocessor::VoxelGridOutlierFilterComponent",
-            name="voxel_grid_outlier_filter",
+            plugin="autoware::pointcloud_preprocessor::RingOutlierFilterComponent",
+            name="ring_outlier_filter",
             remappings=[
                 ("input", "rectified/pointcloud_ex"),
                 ("output", "pointcloud_before_sync"),
             ],
-            parameters=[voxel_grid_filter_params],
+            parameters=[ring_outlier_filter_node_param, ring_outlier_output_frame],
             extra_arguments=[{"use_intra_process_comms": LaunchConfiguration("use_intra_process")}],
         )
     )
@@ -220,6 +213,16 @@ def generate_launch_description():
         description="path to the file of vehicle info yaml"
     )
 
+    add_launch_arg(
+        "ring_outlier_filter_node_param_path",
+        os.path.join(
+            common_sensor_share_dir,
+            "config",
+            "ring_outlier_filter_node_robosense.param.yaml",
+        ),
+        description="path to parameter file of ring outlier filter node",
+    )
+
     set_container_executable = SetLaunchConfiguration(
         "container_executable",
         "component_container",
@@ -231,6 +234,8 @@ def generate_launch_description():
         "component_container_mt",
         condition=IfCondition(LaunchConfiguration("use_multithread")),
     )
+
+    
 
     return launch.LaunchDescription(
         launch_arguments
