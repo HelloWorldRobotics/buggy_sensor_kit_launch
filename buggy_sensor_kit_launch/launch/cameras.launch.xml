@@ -1,14 +1,78 @@
 <launch>
-  <!-- Back Camera -->
-  <node pkg="usb_cam" 
-        exec="usb_cam_node_exe" 
-        name="usb_cam_back"
-        namespace="camera_back">
-    <param name="params_file" value="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/back.yaml"/>
-    <remap from="image_raw" to="/sensing/camera/camera0/image_rect_color"/>
-    <remap from="image_raw/compressed" to="/sensing/camera/camera0/compressed"/>
-    <remap from="image_raw/compressedDepth" to="/sensing/camera/camera0/compressedDepth"/>
-    <remap from="image_raw/theora" to="/sensing/camera/camera0/theora"/>
-    <remap from="camera_info" to="/sensing/camera/camera0/camera_info"/>
-  </node>
+  <!--
+    Single camera bring-up (camera_left).
+
+    Previously this file passed the config as `<param name="params_file" .../>`,
+    which sets a ROS parameter literally called "params_file". usb_cam_node_exe
+    declares no such parameter, so the YAML was never read and the node silently
+    ran on its built-in defaults (/dev/video0, 640x480). `<param from="..."/>`
+    is what actually loads a parameter file.
+
+    Topics are produced by the node's namespace rather than by remapping, so
+    they land on /sensing/camera/<camera_name>/{image_raw,camera_info} per the
+    Autoware convention. The old remapping published raw frames onto
+    .../image_rect_color, which claimed rectification that had not happened.
+  -->
+  <arg name="launch_driver" default="true" description="do launch driver"/>
+  <arg name="camera_name" default="camera_left"/>
+  <arg name="param_file"
+       default="$(find-pkg-share buggy_sensor_kit_launch)/config/camera_configuration/camera_left.yaml"/>
+  <arg name="launch_throttle" default="true" description="rate-limited compressed stream for recording/Foxglove"/>
+  <arg name="jpeg_quality" default="50" description="JPEG quality for the compressed topic (1-100)"/>
+  <arg name="throttle_hz" default="4.0" description="rate of the throttled compressed stream"/>
+
+  <group if="$(var launch_driver)">
+    <!--
+      respawn is essential here. usb_cam opens the V4L2 device once at startup
+      and never reconnects: if the camera is not enumerated yet when Autoware
+      launches, or the cable is disturbed at any point, the node dies silently
+      and the stack keeps running with no camera until someone notices.
+
+      This has already happened twice on this vehicle. With respawn the node
+      retries every respawn_delay seconds and recovers on its own as soon as
+      /dev/buggy_cam0 exists again.
+    -->
+    <node pkg="usb_cam" exec="usb_cam_node_exe"
+          name="usb_cam_$(var camera_name)"
+          namespace="/sensing/camera/$(var camera_name)"
+          output="screen"
+          respawn="true" respawn_delay="5">
+      <param from="$(var param_file)"/>
+      <!--
+        JPEG quality for the compressed topic. Set here rather than in the YAML
+        because the compressed-transport plugin declares this parameter with a
+        LEADING DOT (".image_raw.jpeg_quality"), which a params file cannot
+        express through normal nesting. Note enable_pub_plugins has no leading
+        dot - the two are inconsistent.
+
+        Affects the JPEG encoder only: image_raw keeps full fidelity and rate.
+        Measured on a live frame: 544 KB at the default 95, ~174 KB at 50.
+      -->
+      <param name=".image_raw.jpeg_quality" value="$(var jpeg_quality)"/>
+    </node>
+  </group>
+
+  <!--
+    Rate-limited COMPRESSED stream, for Foxglove and rosbag recording.
+
+    Subscribes to image_raw/compressed and republishes at throttle_hz. It never
+    touches image_raw, so perception and calibration keep the full ~45 Hz
+    full-fidelity stream.
+
+    Republish only - no decode, no re-encode - so CPU cost is negligible.
+    lazy=true means it does not even subscribe until something subscribes to its
+    output, so it costs nothing when nobody is watching or recording.
+
+    This node needs POSITIONAL ARGS, not parameters. Setting input_topic /
+    output_topic / throttle_type as <param> makes it print "Throttle type is
+    missing." and exit 0 immediately - which launch reports as "process has
+    finished cleanly", so it looks like a success rather than a failure.
+    The correct form is: throttle messages <in> <rate> <out>
+  -->
+  <group if="$(var launch_throttle)">
+    <node pkg="topic_tools" exec="throttle"
+          name="$(var camera_name)_record_throttle" output="log"
+          respawn="true" respawn_delay="5"
+          args="messages /sensing/camera/$(var camera_name)/image_raw/compressed $(var throttle_hz) /sensing/camera/$(var camera_name)/image_raw/compressed_throttled"/>
+  </group>
 </launch>

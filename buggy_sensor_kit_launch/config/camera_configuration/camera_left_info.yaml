@@ -1,0 +1,38 @@
+# =====================================================================
+#  PLACEHOLDER - NOT A REAL CALIBRATION. DO NOT TRUST THESE NUMBERS.
+#
+#  These are analytically estimated for a 4 mm lens on a 1/2.7" sensor
+#  (fx = 1920 * 4 / 5.856 = 1311) with ZERO distortion, which is wrong:
+#  the lens visibly barrel-distorts. Any range estimate or lidar-camera
+#  projection built on this will be silently incorrect.
+#
+#  Replace with the output of an actual intrinsic calibration before
+#  enabling camera_lidar_fusion. After calibrating, the values below are
+#  overwritten wholesale - do not merge by hand.
+# =====================================================================
+image_width: 1920
+image_height: 1080
+camera_name: camera_left
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [1311.0, 0.0, 960.0,
+         0.0, 1311.0, 540.0,
+         0.0, 0.0, 1.0]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.0, 0.0, 0.0, 0.0, 0.0]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1.0, 0.0, 0.0,
+         0.0, 1.0, 0.0,
+         0.0, 0.0, 1.0]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [1311.0, 0.0, 960.0, 0.0,
+         0.0, 1311.0, 540.0, 0.0,
+         0.0, 0.0, 1.0, 0.0]

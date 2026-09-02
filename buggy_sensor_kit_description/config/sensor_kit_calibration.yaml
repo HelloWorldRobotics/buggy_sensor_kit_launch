@@ -1,5 +1,5 @@
 sensor_kit_base_link:
-  camera0/camera_link:
+  camera_left/camera_link:
     x: -0.628
     y: 0.0125
     z: 1.47
